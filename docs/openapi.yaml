@@ -45,7 +45,7 @@ paths:
           $ref: '#/components/responses/DoesNotExist'
         '400':
           $ref: '#/components/responses/ValidationErrorDRF'
-  /chats/{id}:
+  /chats/{id}/:
     get:
       description: Получить список сообщений в чате.
       tags:
