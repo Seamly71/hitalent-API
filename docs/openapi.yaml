@@ -1,0 +1,197 @@
+openapi: 3.0.2
+info:
+  title: 'API-2042'
+  version: 'v1'
+paths:
+  /chats/:
+    post:
+      description: Создать чат.
+      tags:
+        - Чат
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateChat'
+      responses:
+        '201':
+          description: Чат успешно создан.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Chat'
+        '400':
+          $ref: '#/components/responses/ValidationErrorDRF'
+  /chats/{id}/messages/:
+    post:
+      description: Отправить сообщение.
+      tags:
+        - Чат
+      parameters:
+        - $ref: '#/components/parameters/id'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateMessage'
+      responses:
+        '201':
+          description: Сообщение успешно создано.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '404':
+          $ref: '#/components/responses/DoesNotExist'
+        '400':
+          $ref: '#/components/responses/ValidationErrorDRF'
+  /chats/{id}:
+    get:
+      description: Получить список сообщений в чате.
+      tags:
+        - Чат
+      parameters:
+        - $ref: '#/components/parameters/id'
+        - $ref: '#/components/parameters/limit'
+      responses:
+        '200':
+          description: Сообщение успешно создано.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageList'
+        '404':
+          $ref: '#/components/responses/DoesNotExist'
+        '400':
+          $ref: '#/components/responses/ValidationErrorDRF'
+    delete:
+      description: Удалить чат вместе с сообщениями.
+      tags:
+        - Чат
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '204':
+          description: Чат успешно удален.
+        '404':
+          $ref: '#/components/responses/DoesNotExist'
+        '400':
+          $ref: '#/components/responses/ValidationErrorDRF'
+components:
+  schemas:
+    CreateChat:
+      type: object
+      properties:
+        title:
+          type: string
+          description: Название чата.
+          maxLength: 200
+          example: "Shadow wizard money gang"
+      required:
+        - title
+    Chat:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Id чата.
+          example: 1
+        title:
+          type: string
+          description: Название чата.
+          maxLength: 200
+          example: "Shadow wizard money gang"
+        created_at:
+          type: string
+          format: date-time
+          description: Дата создания чата
+          example: "2019-07-14T11:32:22Z"
+      required:
+        - id
+        - title
+        - created_at
+    CreateMessage:
+      type: object
+      properties:
+        text:
+          type: string
+          description: Текст сообщения.
+          maxLength: 5000
+          example: "Sample text"
+      required:
+        - text
+    Message:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Id чата.
+          example: 1
+        chat_id:
+          type: integer
+          description: Id сообщения.
+          example: 1
+        text:
+          type: string
+          description: Название чата.
+          maxLength: 200
+          example: "Shadow wizard money gang"
+        created_at:
+          type: string
+          format: date-time
+          description: Дата создания чата
+          example: "2019-07-14T11:32:22Z"
+    MessageList:
+      type: object
+      properties:
+        chat:
+          $ref: '#/components/schemas/Chat'
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/Message'
+    DoesNotExist:
+      type: object
+      properties:
+        detail:
+          example: "Страница не найдена."
+          type: string
+    ValidationErrorDRF:
+      type: object
+      properties:
+        field_name:
+          description: 'Название поля, в котором произошли ошибки. Таких полей может быть несколько'
+          example: [ 'Required field.' ]
+          type: array
+          items:
+            type: string
+  responses:
+    DoesNotExist:
+      description: Эндпоинт не существует.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/DoesNotExist'
+    ValidationErrorDRF:
+      description: Отчет ошибок валидации в формате DRF.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ValidationErrorDRF'
+  parameters:
+    limit:
+      name: limit
+      required: false
+      in: query
+      description: Лимит объектов.
+      example: 20
+      schema:
+        type: integer
+        maximum: 100
+    id:
+      in: path
+      name: id
+      schema:
+        type: integer
+      required: true
+      description: Id чата.
